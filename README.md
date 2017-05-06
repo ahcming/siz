@@ -1,2 +1,2 @@
 # siz
-Sex is Zero
+Sex is Zero(色即是空)
