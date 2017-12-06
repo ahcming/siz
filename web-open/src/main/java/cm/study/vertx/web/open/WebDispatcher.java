@@ -1,5 +1,6 @@
 package cm.study.vertx.web.open;
 
+import cm.study.vertx.util.CodeGen;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
@@ -19,6 +20,7 @@ import java.util.Map;
  */
 public class WebDispatcher extends AbstractVerticle {
 
+    @CodeGen
     @Override
     public void init(Vertx vertx, Context context) {
         super.init(vertx, context);
