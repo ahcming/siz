@@ -1,4 +1,4 @@
-package cm.study.vertx.util;
+package cm.study.vertx.util.code;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

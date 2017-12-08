@@ -1,10 +1,9 @@
 package cm.study.vertx.web.open;
 
-import cm.study.vertx.util.CodeGen;
+import cm.study.vertx.util.code.CodeGen;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;

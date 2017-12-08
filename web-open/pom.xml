@@ -16,7 +16,7 @@
        <dependency>
             <groupId>cm.study.siz</groupId>
             <artifactId>siz-common</artifactId>
-        </dependency> 
+        </dependency>
     </dependencies>
 
     <build>
@@ -30,11 +30,11 @@
                     <useIncrementalCompilation>false</useIncrementalCompilation>
 
                     <annotationProcessors>
-                        <annotationProcessor>cm.study.vertx.util.CodeProcessor</annotationProcessor>
+                        <annotationProcessor>cm.study.vertx.util.code.CodeProcessor</annotationProcessor>
                     </annotationProcessors>
                     <generatedSourcesDirectory>${project.basedir}/src/main/generated</generatedSourcesDirectory>
                     <compilerArgs>
-                        <arg>-AoutputDirectory=${project.basedir}/src/main</arg>
+                        <arg>-Acodegen.output=${project.basedir}/common/src/main/gen</arg>
                     </compilerArgs>
 
                 </configuration>

@@ -1,6 +1,6 @@
 package cm.study.vertx.web.vo;
 
-import cm.study.vertx.util.CodeGen;
+import cm.study.vertx.util.code.CodeGen;
 
 @CodeGen
 public class From {

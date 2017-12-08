@@ -1,4 +1,4 @@
-package cm.study.vertx.util;
+package cm.study.vertx.util.code;
 
 /**
  * 代码生成的目标类型

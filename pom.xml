@@ -91,7 +91,7 @@
                     <useIncrementalCompilation>false</useIncrementalCompilation>
 
                     <annotationProcessors>
-                        <annotationProcessor>cm.study.vertx.util.CodeProcessor</annotationProcessor>
+                        <annotationProcessor>cm.study.vertx.util.code.CodeProcessor</annotationProcessor>
                     </annotationProcessors>
                     <generatedSourcesDirectory>${project.basedir}/src/main/generated</generatedSourcesDirectory>
                     <compilerArgs>
