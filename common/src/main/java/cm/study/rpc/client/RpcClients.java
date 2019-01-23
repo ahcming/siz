@@ -1,5 +1,6 @@
 package cm.study.rpc.client;
 
+import cm.study.rpc.Config;
 import cm.study.rpc.RpcRequest;
 import cm.study.rpc.RpcResponse;
 import cm.study.rpc.codec.RequestPbEncoder;
@@ -13,10 +14,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -26,40 +29,29 @@ public class RpcClients {
 
     private static Logger ILOG = LoggerFactory.getLogger(RpcClients.class);
 
-    private String endpoint;
-    private int port;
-    private int timeout;
+    private Config.Client clientConfig;
 
-    public RpcClients(String endpoint, int port, int timeout) {
-        this.endpoint = endpoint;
-        this.port = port;
-        this.timeout = timeout;
+    public RpcClients(Config.Client config) {
+        clientConfig = config;
     }
 
     /**
      * 单例
      */
     public <T> T getService(Class<T> clazz) {
-        T instance = (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[]{clazz}, new InvocationHandler() {
-
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                RpcResponse response = rpcInvoke(method, args);
-                if (response.isSuccess()) {
-//                    Class<?> returnType = method.getReturnType();
-//                    return ReflectKit.parseValue(response.getResult(), returnType);
-                    return response.getResult();
-                } else {
-                    throw response.getThrowable();
+        T instance = (T) Proxy.newProxyInstance(
+                Thread.currentThread().getContextClassLoader(),
+                new Class<?>[]{clazz},
+                (Object proxy, Method method, Object[] args) -> {
+                    Object result = rpcInvoke(method, args);
+                    return result;
                 }
-            }
-
-        });
+        );
 
         return instance;
     }
 
-    public RpcResponse rpcInvoke(Method method, Object[] args) {
+    public Object rpcInvoke(Method method, Object[] args) throws Throwable {
         ILOG.info("invoke params, method: {}, args: {}", method, args);
 
         List<Object> params = new ArrayList<>();
@@ -68,10 +60,18 @@ public class RpcClients {
         }
 
         RpcRequest request = new RpcRequest(ReflectKit.getMethodId(method), params);
+        RpcResponse response = invoke(clientConfig.endpoint, clientConfig.port, request, clientConfig.format, clientConfig.timeout);
+        if (response.isSuccess()) {
+            return response.getResult();
+        } else {
+            throw response.getThrowable();
+        }
+    }
+
+    public static RpcResponse invoke(String endpoint, int port, RpcRequest request, Config.DataFormat format, int timeout) {
         RpcResponse response = null;
         EventLoopGroup workGroup = new NioEventLoopGroup();
         ClientInvokeHandler invokeHandler = new ClientInvokeHandler(request);
-
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(workGroup);
@@ -80,16 +80,21 @@ public class RpcClients {
             bootstrap.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline()
-//                            .addLast(new ObjectDecoder(1024, ClassResolvers.cacheDisabled(this.getClass().getClassLoader())))
-//                            .addLast(new ObjectEncoder())
-                            .addLast(new ResponsePbDecoder())
-                            .addLast(new RequestPbEncoder())
-                            .addLast(invokeHandler);
+                    if(format == Config.DataFormat.Default) {
+                        ch.pipeline()
+                                .addLast(new ObjectDecoder(1024, ClassResolvers.cacheDisabled(this.getClass().getClassLoader())))
+                                .addLast(new ObjectEncoder());
+                    } else if(format == Config.DataFormat.PB) {
+                        ch.pipeline()
+                                .addLast(new ResponsePbDecoder())
+                                .addLast(new RequestPbEncoder());
+                    }
+
+                    ch.pipeline().addLast(invokeHandler);
                 }
             });
 
-            ChannelFuture future = bootstrap.connect(this.endpoint, this.port).sync();
+            ChannelFuture future = bootstrap.connect(endpoint, port).sync();
             future.channel().closeFuture().sync();
 
             response = invokeHandler.getResponse(timeout);
@@ -103,6 +108,4 @@ public class RpcClients {
 
         return response;
     }
-
-
 }

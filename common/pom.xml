@@ -29,11 +29,11 @@
 			<version>3.7</version>
 		</dependency>
 
-		<!--<dependency>-->
-			<!--<groupId>com.meizu.kiev</groupId>-->
-			<!--<artifactId>meizu-kiev</artifactId>-->
-			<!--<version>1.0.2-RC08</version>-->
-		<!--</dependency>-->
+		<dependency>
+			<groupId>com.meizu.kiev</groupId>
+			<artifactId>meizu-kiev</artifactId>
+			<version>1.0.2-RC08</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.google.protobuf</groupId>

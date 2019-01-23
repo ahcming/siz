@@ -55,7 +55,7 @@ public class RpcServers {
 //                                    .addLast(new ObjectEncoder())
                                     .addLast(new RequestPbDecoder())
                                     .addLast(new ResponsePbEncoder())
-                                    .addLast(new ServerResponseHandler(apiRoute));
+                                    .addLast(new ServerHandler(apiRoute));
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);

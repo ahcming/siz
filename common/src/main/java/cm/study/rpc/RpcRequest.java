@@ -10,6 +10,9 @@ public class RpcRequest implements Serializable {
 
     private static final long serialVersionUID = 85352635439493737L;
 
+    // 请求序号
+    private long seq;
+
     // 接口的完全限定名
     private String apiName;
 
@@ -22,6 +25,14 @@ public class RpcRequest implements Serializable {
     public RpcRequest(String apiName, List<Object> params) {
         this.apiName = apiName;
         this.params = params;
+    }
+
+    public long getSeq() {
+        return seq;
+    }
+
+    public void setSeq(long seq) {
+        this.seq = seq;
     }
 
     public String getApiName() {
@@ -43,7 +54,8 @@ public class RpcRequest implements Serializable {
     @Override
     public String toString() {
         return "RpcRequest{" +
-               "apiName='" + apiName + '\'' +
+               "seq=" + seq +
+               ", apiName='" + apiName + '\'' +
                ", params=" + params +
                '}';
     }
