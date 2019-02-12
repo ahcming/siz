@@ -26,10 +26,6 @@ public class RpcServers {
         this.apiRoute = new ApiRoute();
     }
 
-    public void registry(Object serviceInstance) {
-        apiRoute.init(serviceInstance);
-    }
-
     public <T> void registry(Class<T> iface, T instance) {
         apiRoute.bind(iface, instance);
     }

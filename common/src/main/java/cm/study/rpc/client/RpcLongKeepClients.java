@@ -1,6 +1,7 @@
 package cm.study.rpc.client;
 
 import cm.study.rpc.Config;
+import cm.study.rpc.ConfigOptions;
 import cm.study.rpc.RpcRequest;
 import cm.study.rpc.RpcResponse;
 import cm.study.rpc.util.IDGen;
@@ -17,11 +18,16 @@ public class RpcLongKeepClients {
 
     private static Logger ILOG = LoggerFactory.getLogger(RpcLongKeepClients.class);
 
-    private Config.Client clientConfig;
-    public RpcLongKeepClients(Config.Client config) {
+    private Config clientConfig;
+
+    public RpcLongKeepClients(Config config) {
         clientConfig = config;
         // 与服务器建立长连接
-        RpcConnections.custom().connect("test", clientConfig.endpoint, clientConfig.port, clientConfig.format);
+        RpcConnections.custom().connect(
+                config.get(ConfigOptions.ApiNameSpace),
+                config.get(ConfigOptions.ServerHost),
+                config.get(ConfigOptions.ServerPort),
+                config.get(ConfigOptions.DataFormat));
     }
 
     /**
@@ -49,7 +55,7 @@ public class RpcLongKeepClients {
         }
 
         RpcRequest request = new RpcRequest(ReflectKit.getMethodId(method), params);
-        request.setSeq(IDGen.next(this.clientConfig.namespace));
+        request.setSeq(IDGen.next(clientConfig.get(ConfigOptions.ApiNameSpace)));
 
         ClientHandler clientHandler = RpcConnections.custom().choose("test");
         ILOG.info("get socket channel: {}", clientHandler);
@@ -61,7 +67,7 @@ public class RpcLongKeepClients {
             return null;
 
         } else {
-            RpcResponse response = clientHandler.sendRequestSync(request, this.clientConfig.timeout);
+            RpcResponse response = clientHandler.sendRequestSync(request, clientConfig.get(ConfigOptions.ClientTimeout));
             ILOG.info("sync invoke params, method: {}, args: {}, cost: {} ms", method, args, (System.currentTimeMillis()-s));
             if (response.isSuccess()) {
                 return response.getResult();

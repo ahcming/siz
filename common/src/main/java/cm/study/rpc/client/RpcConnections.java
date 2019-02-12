@@ -1,7 +1,6 @@
 package cm.study.rpc.client;
 
-import cm.study.rpc.Config;
-import cm.study.rpc.RpcRequest;
+import cm.study.rpc.ConfigOptions;
 import cm.study.rpc.codec.RequestPbEncoder;
 import cm.study.rpc.codec.ResponsePbDecoder;
 import io.netty.bootstrap.Bootstrap;
@@ -12,6 +11,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -53,7 +52,7 @@ public class RpcConnections {
         return instance;
     }
 
-    public void connect(String serverName, String endpoint, int port, Config.DataFormat format) {
+    public void connect(String serverName, String endpoint, int port, ConfigOptions.DataFormats format) {
 //        exec.submit(() -> {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(workGroup);
@@ -63,11 +62,11 @@ public class RpcConnections {
             bootstrap.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
-                    if (format == Config.DataFormat.Default) {
+                    if (format == ConfigOptions.DataFormats.Default) {
                         ch.pipeline()
                                 .addLast(new ObjectDecoder(1024, ClassResolvers.cacheDisabled(this.getClass().getClassLoader())))
                                 .addLast(new ObjectEncoder());
-                    } else if (format == Config.DataFormat.PB) {
+                    } else if (format == ConfigOptions.DataFormats.PB) {
                         ch.pipeline()
                                 .addLast(new ResponsePbDecoder())
                                 .addLast(new RequestPbEncoder());
@@ -131,7 +130,8 @@ public class RpcConnections {
         }
 
         ILOG.info("finish choose client handler for {}", serviceId);
-        return handlers.get(0); // 先固定取第一个
+        int idx = RandomUtils.nextInt(0, handlers.size());  // 随便取一个可用的节点
+        return handlers.get(idx);
     }
 
     public void shutdown() {

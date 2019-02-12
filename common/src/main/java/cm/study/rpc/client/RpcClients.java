@@ -1,6 +1,7 @@
 package cm.study.rpc.client;
 
 import cm.study.rpc.Config;
+import cm.study.rpc.ConfigOptions;
 import cm.study.rpc.RpcRequest;
 import cm.study.rpc.RpcResponse;
 import cm.study.rpc.codec.RequestPbEncoder;
@@ -29,9 +30,9 @@ public class RpcClients {
 
     private static Logger ILOG = LoggerFactory.getLogger(RpcClients.class);
 
-    private Config.Client clientConfig;
+    private Config clientConfig;
 
-    public RpcClients(Config.Client config) {
+    public RpcClients(Config config) {
         clientConfig = config;
     }
 
@@ -60,7 +61,12 @@ public class RpcClients {
         }
 
         RpcRequest request = new RpcRequest(ReflectKit.getMethodId(method), params);
-        RpcResponse response = invoke(clientConfig.endpoint, clientConfig.port, request, clientConfig.format, clientConfig.timeout);
+        RpcResponse response = invoke(
+                clientConfig.get(ConfigOptions.ServerHost),
+                clientConfig.get(ConfigOptions.ServerPort),
+                request,
+                clientConfig.get(ConfigOptions.DataFormat),
+                clientConfig.get(ConfigOptions.ClientTimeout));
         if (response.isSuccess()) {
             return response.getResult();
         } else {
@@ -68,7 +74,7 @@ public class RpcClients {
         }
     }
 
-    public static RpcResponse invoke(String endpoint, int port, RpcRequest request, Config.DataFormat format, int timeout) {
+    public static RpcResponse invoke(String endpoint, int port, RpcRequest request, ConfigOptions.DataFormats format, int timeout) {
         RpcResponse response = null;
         EventLoopGroup workGroup = new NioEventLoopGroup();
         ClientInvokeHandler invokeHandler = new ClientInvokeHandler(request);
@@ -80,11 +86,11 @@ public class RpcClients {
             bootstrap.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
-                    if(format == Config.DataFormat.Default) {
+                    if(format == ConfigOptions.DataFormats.Default) {
                         ch.pipeline()
                                 .addLast(new ObjectDecoder(1024, ClassResolvers.cacheDisabled(this.getClass().getClassLoader())))
                                 .addLast(new ObjectEncoder());
-                    } else if(format == Config.DataFormat.PB) {
+                    } else if(format == ConfigOptions.DataFormats.PB) {
                         ch.pipeline()
                                 .addLast(new ResponsePbDecoder())
                                 .addLast(new RequestPbEncoder());

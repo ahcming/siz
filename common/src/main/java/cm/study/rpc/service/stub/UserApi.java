@@ -1,6 +1,7 @@
 package cm.study.rpc.service.stub;
 
 import cm.study.rpc.Config;
+import cm.study.rpc.ConfigOptions;
 
 public interface UserApi {
 
@@ -10,7 +11,4 @@ public interface UserApi {
 
     void updateName(String id, String newName);
 
-    Config.Client clientConfig = new Config.Client();
-
-    Config.Server serverConfig = new Config.Server();
 }

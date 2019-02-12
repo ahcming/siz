@@ -30,6 +30,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.101tec</groupId>
+			<artifactId>zkclient</artifactId>
+			<version>0.10</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.meizu.kiev</groupId>
 			<artifactId>meizu-kiev</artifactId>
 			<version>1.0.2-RC08</version>

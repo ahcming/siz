@@ -1,9 +1,6 @@
 package cm.study.rpc.server;
 
 import cm.study.rpc.util.ReflectKit;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.sun.org.apache.bcel.internal.generic.IXOR;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +13,9 @@ public class ApiRoute {
 
     private static Logger ILOG = LoggerFactory.getLogger(ApiRoute.class);
 
+    // api -> method
     Map<String, Method> apiMethodMap = new HashMap<>();
+    // api -> impl instance
     Map<String, Object> apiInstanceMap = new HashMap<>();
 
     public void init(Object serviceInstance) {
@@ -34,13 +33,6 @@ public class ApiRoute {
     }
 
     public <T> void bind(Class<T> iface, T impl) {
-//        T wrapper = (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[]{iface}, new InvocationHandler() {
-//            @Override
-//            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//                return impl;
-//            }
-//        });
-
         Method[] methods = iface.getDeclaredMethods();
         for (Method method : methods) {
             String methodId = ReflectKit.getMethodId(method);
@@ -64,17 +56,6 @@ public class ApiRoute {
         try {
             Object instance = apiInstanceMap.get(apiName);
             Object[] params = args.toArray(new Object[args.size()]);
-//            Object[] params = new Object[args.size()];
-//            Class<?>[] paramTypes = targetMethod.getParameterTypes();
-//            for (int idx = 0; idx < args.size(); idx++) {
-//                Class<?> paramType = paramTypes[idx];
-//                Object originArg = args.get(idx);
-//                if (paramType.isPrimitive()) {
-//                    params[idx] = originArg;
-//                } else {
-//                    params[idx] = JSON.parseObject(JSON.toJSONString(originArg), paramType);
-//                }
-//            }
 
             Object result = targetMethod.invoke(instance, params);
             return result;
